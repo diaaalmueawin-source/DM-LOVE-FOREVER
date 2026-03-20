@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مملكة الحب الأبدية | تسجيل الدخول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Reem+Kufi:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-dark: #0a0a0a; 
+            --royal-red: #a30000; 
+            --gold-color: #ffd700; 
+            --error-red: #ff4d4d;
+        }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; 
+            margin: 0; 
+            padding: 0; 
+            outline: none;
+        }
+        body { 
+            font-family: 'Amiri', serif; 
+            background: var(--bg-dark); 
+            background-image: radial-gradient(circle at 50% 50%, #1a0000 0%, #0a0a0a 100%); 
+            min-height: 100vh; 
+            color: white; 
+            overflow-x: hidden; 
+            position: relative; 
+        }
+        
+        .page { display: none; width: 100%; min-height: 100vh; flex-direction: column; align-items: center; z-index: 10; padding: 20px; position: relative; }
+        .active-page { display: flex !important; }
+
+        .top-icons { position: fixed; top: 20px; left: 20px; display: flex; gap: 12px; z-index: 9999; direction: ltr; }
+        .mini-icon { width: 40px; height: 40px; background: rgba(163, 0, 0, 0.9); border: 1.5px solid var(--gold-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .back-nav { position: fixed; top: 20px; right: 20px; width: 40px; height: 40px; background: var(--royal-red); border: 1px solid var(--gold-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 9999; }
+
+        #login-page { justify-content: center; padding: 20px; }
+        .login-card { background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(20px); border: 1px solid rgba(255, 215, 0, 0.1); padding: 25px; border-radius: 25px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9); position: relative; }
+        
+        @keyframes shakeError {
+            0% { transform: translateX(0); border-color: var(--error-red); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+            100% { transform: translateX(0); }
+        }
+        .shake-active { animation: shakeError 0.5s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--error-red) !important; }
+
+        .profile-img { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--royal-red); margin: 15px auto; background: url('https://i.postimg.cc/7LGMtKzB/Gemini-Generated-Image-yh8q2jyh8q2jyh8q.png') center/cover; }
+        .input-group { margin-bottom: 12px; text-align: right; }
+        .input-group label { display: block; color: var(--royal-red); margin-bottom: 4px; font-weight: bold; font-size: 0.9rem; }
+        /* تم إضافة autocomplete="new-password" لمنع المتصفح من كتابة الباسورد تلقائياً */
+        .input-group input { width: 100%; padding: 12px; border-radius: 12px; border: none; background: #fff; color: #000; text-align: center; outline: none; }
+        .remember-me { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; cursor: pointer; color: var(--gold-color); font-size: 0.9rem; font-family: 'Reem Kufi'; justify-content: center; }
+        
+        .login-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; background: linear-gradient(90deg, #a30000, #660000); color: white; cursor: pointer; font-family: 'Reem Kufi'; font-size: 1.2rem; }
+
+        .header h1 { color: var(--gold-color); font-family: 'Reem Kufi', sans-serif; font-size: clamp(1.5rem, 8vw, 2.2rem); text-shadow: 2px 2px 10px rgba(255, 215, 0, 0.3); margin-top: 80px; text-align: center; }
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 400px; margin-top: 30px; }
+        .menu-item { background: rgba(163, 0, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.2); padding: 20px 10px; border-radius: 20px; text-align: center; cursor: pointer; display: flex; flex-direction: column; gap: 8px; }
+        .menu-item i { font-style: normal; font-size: 1.5rem; }
+        .menu-item span { font-size: 0.9rem; font-family: 'Reem Kufi'; color: var(--gold-color); }
+        .wide-btn { grid-column: span 2; }
+
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center; }
+        .modal { background: rgba(20, 0, 0, 0.98); border: 1.5px solid var(--gold-color); border-radius: 25px; padding: 30px 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 0 40px rgba(0, 0, 0, 1); }
+        .modal h3 { color: var(--gold-color); font-family: 'Amiri'; margin-bottom: 25px; font-size: 1.1rem; line-height: 1.6; }
+        .modal-btns { display: flex; gap: 12px; flex-direction: column; }
+        .m-btn { padding: 12px; border-radius: 12px; border: none; font-family: 'Reem Kufi'; cursor: pointer; }
+        .btn-confirm { background: var(--royal-red); color: white; }
+        .btn-cancel { background: rgba(255, 255, 255, 0.1); color: #ccc; }
+    </style>
+</head>
+<body>
+
+    <div id="login-page" class="page">
+        <div class="login-card" id="loginCard">
+            <h2 style="color:var(--gold-color); font-family:'Reem Kufi';">مملكة الحب الأبدية</h2>
+            <div class="profile-img"></div>
+            <form id="loginForm" autocomplete="off">
+                <div class="input-group"><label>مقام الملك</label><input type="text" id="king" placeholder="⌯ 𝕯𝖎𝖆𝖆 ⌯" required autocomplete="off"></div>
+                <div class="input-group"><label>سمو الملكة</label><input type="text" id="queen" placeholder="⌯ 𝕸𝖔𝖓𝖆 ⌯" required autocomplete="off"></div>
+                <div class="input-group"><label>الباسورد</label><input type="password" id="pass" placeholder="⌯ الباسورد يروحي 🥹 ⌯" required autocomplete="new-password"></div>
+                <label class="remember-me"><input type="checkbox" id="remember"> حفظ الدخول لـ 24 ساعة 👑</label>
+                <button type="submit" class="login-btn">دخول للمملكة</button>
+            </form>
+            <p id="err" style="color:var(--error-red); font-size:0.9rem; margin-top:15px; display:none; font-weight:bold;"></p>
+        </div>
+    </div>
+
+    <div id="portal-page" class="page">
+        <div class="top-icons">
+            <div class="mini-icon" onclick="openExternal('chat.html')">💬</div>
+            <div class="mini-icon" onclick="openExternal('cert.html')">📜</div>
+        </div>
+        <div class="back-nav" onclick="showLogoutModal()">🏠</div>
+        
+        <div class="header">
+            <h1>بوابة المملكة</h1>
+            <p style="text-align:center">الــمــلــڪــة مــنــى 👑</p>
+        </div>
+
+        <div class="menu-grid">
+            <div class="menu-item" onclick="openExternal('age.html')"><i>⏳</i><span>عمرنا مع بعض</span></div>
+            <div class="menu-item" onclick="openExternal('questions.html')"><i>❓</i><span>50 سؤال</span></div>
+            <div class="menu-item" onclick="openExternal('cards.html')"><i>🃏</i><span>كروت الحب</span></div>
+            <div class="menu-item" onclick="openExternal('gallery.html')"><i>📸</i><span>ذكرياتنا</span></div>
+            <div class="menu-item wide-btn" onclick="openExternal('message.html')"><i>❤️</i><span>كلام من قلب جوزك ضياء</span></div>
+        </div>
+    </div>
+
+    <div id="logoutOverlay" class="overlay">
+        <div class="modal">
+            <h3>هل انتي متاكده من تسجيل الخروج من الموقع يا بنوتي ؟ 👑</h3>
+            <div class="modal-btns">
+                <button class="m-btn btn-confirm" onclick="confirmLogout()">نعم، تسجيل الخروج</button>
+                <button class="m-btn btn-cancel" onclick="closeLogoutModal()">الرجوع للمملكة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+
+        window.onload = () => {
+            const expiry = localStorage.getItem('loginExpiry');
+            if (expiry && new Date().getTime() < expiry) {
+                goPage('portal-page', true);
+            } else {
+                logoutProcess(); // مسح أي بيانات متبقية وتأمين الصفحة
+            }
+        };
+
+        window.addEventListener('popstate', function(event) {
+            const currentPage = document.querySelector('.active-page')?.id;
+
+            if ($('logoutOverlay').style.display === 'flex') {
+                closeLogoutModal();
+                return;
+            }
+
+            if (currentPage === 'portal-page') {
+                showLogoutModal();
+            }
+        });
+
+        function logoutProcess() {
+            localStorage.removeItem('loginExpiry');
+            // تفريغ المدخلات فوراً لضمان عدم بقاء الباسورد
+            $('king').value = "";
+            $('queen').value = "";
+            $('pass').value = "";
+            $('remember').checked = false;
+            
+            // منع الرجوع للخلف عن طريق استبدال الحالة الحالية
+            history.replaceState({page: 'login-page'}, "", "");
+            switchPage('login-page');
+        }
+
+        function switchPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            $(id).classList.add('active-page');
+            window.scrollTo(0,0);
+        }
+
+        function goPage(id, replace = false) {
+            switchPage(id);
+            if (replace) {
+                history.replaceState({page: id}, "", "");
+            } else {
+                history.pushState({page: id}, "", "");
+            }
+        }
+
+        function openExternal(url) {
+            history.pushState({page: 'portal-page'}, "", "");
+            window.location.href = url;
+        }
+
+        $('loginForm').onsubmit = e => {
+            e.preventDefault();
+            const clean = t => t.replace(/\s+/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي');
+            const card = $('loginCard');
+            if(clean($('king').value).includes("ضيا") && clean($('queen').value).includes("مني") && $('pass').value === "15/6/2005") { 
+                if ($('remember').checked) {
+                    localStorage.setItem('loginExpiry', new Date().getTime() + (24 * 60 * 60 * 1000));
+                } else {
+                    localStorage.removeItem('loginExpiry');
+                }
+                $('err').style.display='none';
+                goPage('portal-page', true); // استخدام true لمنع الرجوع لصفحة اللوجن بعد الدخول
+            } else { 
+                $('err').innerText = "في حاجه غلط في الباسورد يابنوتي..جربي تاني"; 
+                $('err').style.display='block'; 
+                card.classList.remove('shake-active');
+                void card.offsetWidth;
+                card.classList.add('shake-active');
+            }
+        };
+
+        function showLogoutModal() {
+            history.pushState({modal: 'open'}, "", "");
+            $('logoutOverlay').style.display = 'flex';
+        }
+
+        function closeLogoutModal() {
+            $('logoutOverlay').style.display = 'none';
+            if (history.state?.modal === 'open') {
+                history.back();
+            }
+        }
+
+        function confirmLogout() { 
+            // 1. مسح التاريخ لمنع الرجوع
+            localStorage.removeItem('loginExpiry');
+            // 2. إعادة التحميل للوجن مع مسح الـ History
+            window.location.replace(window.location.href.split('#')[0]);
+        }
+    </script>
+</body>
+</html>

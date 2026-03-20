@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>صندوق مشاعري - لست البنات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Reem+Kufi:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --gold: #ffd700;
+            --royal-red: #a30000;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+            outline: none;
+        }
+
+        body {
+            margin: 0; padding: 20px;
+            background: var(--bg-color);
+            color: white; font-family: 'Amiri', serif;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        @keyframes pulse-click {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.92); }
+            100% { transform: scale(1); }
+        }
+        .pulse-active:active {
+            animation: pulse-click 0.1s ease-out;
+        }
+
+        h1 { font-family: 'Reem Kufi'; color: var(--gold); text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #ccc; margin-bottom: 30px; font-size: 1rem; line-height: 1.4; }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .envelope {
+            background: rgba(163, 0, 0, 0.2);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .envelope span { font-family: 'Reem Kufi'; font-size: 0.9rem; color: #fff; line-height: 1.3; pointer-events: none; }
+
+        #message-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            padding: 10px;
+        }
+
+        .message-card {
+            background: #1a1a1a;
+            border: 2px solid var(--gold);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            width: 85%; 
+            max-width: 310px; 
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            margin: auto; 
+        }
+
+        .message-card p { 
+            font-size: 1.2rem;
+            line-height: 1.6; 
+            color: var(--gold); 
+            margin: 0;
+            white-space: pre-wrap;
+            direction: rtl;
+        }
+        
+        .signature-name {
+            display: block;
+            margin-top: 20px;
+            font-size: 1.3rem;
+            color: #fff;
+            font-family: 'Reem Kufi';
+            border-top: 1px solid var(--gold);
+            padding-top: 10px;
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            background: var(--royal-red);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-family: 'Reem Kufi';
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            margin-top: 35px; 
+            color: var(--gold); 
+            text-decoration: none; 
+            font-size: 0.9rem; 
+            border-bottom: 1px solid var(--gold); 
+            padding-bottom: 2px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>صندوق مشاعري 💌</h1>
+    <p class="subtitle">يا ست البنات.. افتحي الظرف اللي يناسب حالتك دلوقتي</p>
+
+    <div class="grid-container">
+        <div class="envelope pulse-active" onclick="openMsg('miss')"><span>لما توحشيني 🥺</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('angry')"><span>لما نكون زعلانين 💔</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('bored')"><span>لما تحسي بملل 🥱</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('support')"><span>لما تحتاجي سند 💪</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('happy')"><span>لما تكوني فرحانة 😍</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('anxious')"><span>لما تكوني قلقانة 😰</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('cold')"><span>لما تحسي بالبرد ❄️</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('success')"><span>لما تنجحي في حاجة 🏆</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('busy')"><span>لما تكوني مشغولة 🏃‍♀️</span></div>
+        <div class="envelope pulse-active" onclick="openMsg('sleep')"><span>قبل ما تنامي 🌙</span></div>
+    </div>
+
+    <a href="index.html" class="back-link pulse-active">← العودة للمملكة</a>
+
+    <div id="message-overlay" onclick="closeMsgFromOutside(event)">
+        <div class="message-card" id="messageCard">
+            <p id="text-content"></p>
+            <span class="signature-name">من ضياء لـ منى الملكة 👑</span>
+            <button class="close-btn pulse-active" onclick="closeMsg()">اقفلي الظرف</button>
+        </div>
+    </div>
+
+    <script>
+        const msgs = {
+            miss: "غمضي عينيكي.. أنا دلوقتي بكلم قلبك وبقولك إنك وحشاني أكتر ما أنتي متخيلة، ومستني اللحظة اللي نكون فيها سوا.",
+            angry: "لو فيه بينا زعل، فالدنيا في عيني بتبقى سودة وملهاش طعم. أنتي عارفة إني مأقدرش على بعدك ولا زعلك، وحقك على راسي وقلبي من جوه. سامحيني يا ست البنات، مفيش حاجة في الكون تستاهل إننا نضيع ثانية وأحنا بعيد عن بعض.. بحبك.",
+            bored: "ملانة؟ طب تعالي نخطط لحاجة مجنونة نعملها سوا، أو فكريني بموقف مضحك حصل بينا. الدنيا معاكي مفيش فيها ملل يا روحي.",
+            support: "ارمي حمولك عليا وطمني قلبك، أنا عسكرك اللي واقف حارس ليكي طول العمر، وضهرك اللي مستحيل يتخلى عنك. لو الدنيا كلها جت عليكي، أنا حيطتك السد اللي مبيجيش عليها ريح. أنتي مش لوحدك يا منى، أنا جنبك ومعاكي وسندك لحد آخر يوم في عمري.",
+            happy: "فرحتك هي العيد الحقيقي لقلبي. مفيش منظر في الكون أجمل من ضحكتك وهي منورة وشك. يا رب دايماً مبسوطة وفرحانة يا وش السعد عليا.",
+            anxious: "خدي نفس عميق يا روحي.. مفيش حاجة تستاهل قلقك وأنا جنبك. سيبي الحمل عليا وطمني قلبك، كل حاجة هتكون تمام طول ما إيدنا في إيد بعض.",
+            cold: "يا ريتني كنت جنبك دلوقتي عشان أدفيكي بقلبي. اتغطي كويس واشربي حاجة دافية، وافتكري إن حبي ليكي نار مابتنطفيش وبتدفي روحي دايماً.",
+            success: "كنت واثق فيكي! أنتي دايمًا بتبهريني بشطارتك وقوتك. مبروك يا فخر حياتي، نجاحك هو نجاحي وأنا أكتر واحد فخور بيكي في الدنيا.",
+            busy: "عارف إن يومك زحمة، بس حبيت أقولك إنك في بالي في كل ثانية. ركزي في اللي بتعمليه يا بطلة، ومستنيكي تخلصي عشان أحكيلك وحشتيني قد إيه.",
+            sleep: "تصبحي على جنة تشبه قلبك.. نامي وانتي عارفة إن فيه قلب هنا مبيبطّلش يدعيلك ويحبك ويشيلك في عيونه. تصبحي على خيري."
+        };
+
+        // تهيئة السجل عند تحميل الصفحة
+        window.onload = function() {
+            window.history.replaceState({ page: "main" }, "");
+        };
+
+        function openMsg(type) {
+            document.getElementById('text-content').innerText = msgs[type];
+            document.getElementById('message-overlay').style.display = 'flex';
+            // إضافة حالة للسجل لتمكين زر الرجوع من إغلاق الظرف
+            window.history.pushState({ isOverlayOpen: true }, "");
+        }
+
+        // التعديل المطلوب: زر الإغلاق يقوم بعملية Back ليعود لصفحة الظروف
+        function closeMsg() {
+            if (window.history.state && window.history.state.isOverlayOpen) {
+                window.history.back();
+            } else {
+                // احتياطي في حال تم استدعاء الدالة بدون سجل
+                document.getElementById('message-overlay').style.display = 'none';
+            }
+        }
+
+        // معالجة زر الرجوع (سواء من الموبايل أو من دالة closeMsg)
+        window.onpopstate = function(event) {
+            const overlay = document.getElementById('message-overlay');
+            if (overlay.style.display === 'flex') {
+                overlay.style.display = 'none';
+            } else {
+                // لو كنا في الصفحة الرئيسية للظروف ودست رجوع، نرجع لصفحة المملكة
+                window.location.href = "index.html";
+            }
+        };
+
+        function closeMsgFromOutside(event) {
+            if (event.target === document.getElementById('message-overlay')) {
+                closeMsg();
+            }
+        }
+    </script>
+</body>
+</html>

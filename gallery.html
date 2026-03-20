@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>أسرار مملكتنا 🌌</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Reem+Kufi:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-black: #0a0a0a; --deep-maroon: #800000; --gold: #ffd700; --soft-red: #a30000;
+        }
+        * { 
+            box-sizing: border-box; 
+            user-select: none; 
+            /* التعديل: إلغاء اللون الرمادي عند اللمس تماماً */
+            -webkit-tap-highlight-color: transparent; 
+            outline: none;
+        }
+        body {
+            margin: 0; padding: 20px; background-color: var(--bg-black);
+            color: white; font-family: 'Amiri', serif;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+        #stars-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: #000; }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--duration) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+        
+        @keyframes pulse-click {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.92); }
+            100% { transform: scale(1); }
+        }
+        .pulse-active:active { animation: pulse-click 0.1s ease-out; }
+
+        .container { width: 100%; max-width: 400px; text-align: center; position: relative; z-index: 10; }
+        h1 { font-family: 'Reem Kufi'; color: var(--gold); margin-bottom: 20px; font-size: 1.5rem; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .section-card {
+            background: rgba(128, 0, 0, 0.1); backdrop-filter: blur(10px);
+            border: 1px solid var(--deep-maroon); border-radius: 20px; padding: 20px; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .star-map-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 15px; }
+        .star-map-circle {
+            width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--gold);
+            background: url('https://www.solarsystemscope.com/textures/download/2k_stars_milky_way.jpg');
+            background-size: cover; box-shadow: 0 0 20px var(--gold); animation: rotateMap 25s linear infinite;
+        }
+        @keyframes rotateMap { from { background-position: 0 0; } to { background-position: 500px 500px; } }
+        
+        .msg-box { min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--gold); margin-bottom: 15px; line-height: 1.4; }
+        
+        .random-btn {
+            background: linear-gradient(135deg, var(--soft-red), #500000); color: white; border: 1px solid var(--gold);
+            padding: 10px 25px; border-radius: 50px; cursor: pointer; font-family: 'Reem Kufi'; font-size: 0.9rem;
+            -webkit-appearance: none; /* التأكد من إلغاء ستايل النظام في الأيفون */
+        }
+        .capsule-btn { background: rgba(0,0,0,0.6); border: 1px dashed #444; padding: 15px; border-radius: 15px; cursor: pointer; color: #666; }
+        .back-home-btn {
+            margin-top: 20px; display: inline-block; color: var(--gold); text-decoration: none;
+            font-family: 'Reem Kufi'; font-size: 1rem; border: 1px solid var(--gold); padding: 8px 20px; border-radius: 50px;
+            background: rgba(255, 215, 0, 0.1);
+        }
+        #custom-alert {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #111; border: 2px solid var(--gold); padding: 25px; border-radius: 20px; z-index: 2000; width: 85%; text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="stars-bg"></div>
+    <div class="container">
+        <h1>أَسْرَارُ مَمْلَكَتِنَا 🌌</h1>
+        <div class="section-card">
+            <div class="star-map-wrap"><div class="star-map-circle"></div></div>
+            <h3 style="color: var(--gold); margin-bottom: 10px;">سَمَاءُ لَيْلَةِ 15/6/2012</h3>
+            <p style="font-size: 0.9rem; color: #ddd;">في هذه الليلة، كانت النجوم شاهدة على اصطفاف قلبينا وبداية قصة حبنا الأبدية.</p>
+        </div>
+        <div class="section-card">
+            <div class="msg-box" id="loveMessage">اضغطي وشوفي قلبي بيقولك إيه..</div>
+            <button class="random-btn pulse-active" onclick="generateMessage()">رسالة من قلبي 💌</button>
+        </div>
+        <div class="section-card">
+            <div class="capsule-btn pulse-active" onclick="tryOpenCapsule()" style="cursor: pointer;">
+                <div style="font-size: 24px;">🔒</div>
+                <span>كبسولة الزمن (2030)</span>
+            </div>
+        </div>
+        <a href="index.html" class="back-home-btn pulse-active">← العودة للمملكة 🏰</a>
+    </div>
+
+    <div id="custom-alert">
+        <p id="alert-text" style="color: white; line-height: 1.6;"></p><br>
+        <button class="random-btn pulse-active" onclick="closeAlert()">حاضر يا بابا</button>
+    </div>
+
+    <script>
+        const messages = [
+            "أنتِ يا منى ملكة قلبي الوحيدة.",
+            "كل نبضة في قلبي بتنادي باسمك يا ست البنات.",
+            "أجمل يوم في عمري هو اليوم اللي عرفتك فيه يا مراتي.",
+            "عشقتك من أول نظرة وهفضل أعشقك لآخر نفس يا بنوتي.",
+            "أنتِ ست البنات ونور عيوني وقلب بابا من جوه.",
+            "يا منى أنتِ عوض ربنا ليا عن كل حاجة مرّة شافتها عيني.",
+            "ضحكتك هي اللي بتنور لي دنيتي يا ست البنات.",
+            "أنتِ مش بس مراتي، أنتِ بنتي وصاحبتي وحبيبتي وكل مالي.",
+            "بعشق تفاصيلك الصغيرة قبل الكبيرة يا منى.",
+            "وجودك جنبي هو القوة اللي بتخليني أكمل يا قلب بابا.",
+            "يا أجمل منى في الكون، بحبك فوق ما تتخيلي.",
+            "أنتِ اللي خبيتك جوه قلبي وقفلته عليكي يا مراتي العزيزة.",
+            "يا سكرة حياتي وبنوتي الدلوعة، ربنا يباركلي فيكي.",
+            "معاكي عرفت يعني إيه حب حقيقي يا ست البنات.",
+            "أنتِ الروح اللي مأقدرش أعيش من غيرها يا منى.",
+            "يا أغلى من نور عيني، بعشقك يا مراتي.",
+            "يا منى، أنتِ أجمل صدفة غيرت مجرى حياتي كلها.",
+            "عشقتك جوه دمي بيجري يا بنوتي وصاحبتي.",
+            "بحبك يا منى يا ست البنات لآخر يوم في عمري.",
+            "يا قلب بابا، أنتِ الأمان والسكن وبداية ونهاية كل حاجة حلوة."
+        ];
+        
+        function generateMessage() {
+            const el = document.getElementById('loveMessage');
+            el.innerText = messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        function createStars() {
+            const bg = document.getElementById('stars-bg');
+            for(let i=0; i<80; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                const size = Math.random() * 2 + 'px';
+                s.style.width = size; s.style.height = size;
+                s.style.top = Math.random() * 100 + '%';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                bg.appendChild(s);
+            }
+        }
+
+        function tryOpenCapsule() {
+            document.getElementById('alert-text').innerHTML = "صبرك يا ست البنات! 🌚 <br> الكبسولة دي مقفولة بكلمة سر زمنية، مش هتفتح غير لما نكبر سوا ونشوف ولادنا حوالينا.";
+            document.getElementById('custom-alert').style.display = 'block';
+            window.history.pushState({alert: 'open'}, "");
+        }
+
+        function closeAlert() { 
+            document.getElementById('custom-alert').style.display = 'none'; 
+        }
+
+        window.history.pushState({page: 'main'}, "");
+        window.onpopstate = function(event) {
+            const alertBox = document.getElementById('custom-alert');
+            if (alertBox.style.display === 'block') {
+                closeAlert();
+                window.history.pushState({page: 'main'}, "");
+            } else {
+                window.location.href = "index.html";
+            }
+        };
+
+        createStars();
+    </script>
+</body>
+</html>

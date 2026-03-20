@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مملكتنا الخاصة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Reem+Kufi:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --royal-red: #a30000;
+            --gold-color: #ffd700;
+            --card-bg-dark: rgba(255, 255, 255, 0.05);
+            --timer-bg-red: rgba(163, 0, 0, 0.2);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Amiri', serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            color: white; position: relative;
+        }
+
+        /* --- سهم الرجوع العلوي --- */
+        #top-back-arrow {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(45deg, #a30000, #cc0000);
+            border: 2px solid var(--gold-color);
+            border-radius: 50%; color: white;
+            text-decoration: none; z-index: 2000;
+            font-size: 1.8rem; font-weight: 900;
+            box-shadow: 0 4px 10px rgba(163, 0, 0, 0.5);
+        }
+
+        /* سقوط القلوب */
+        .heart-fall {
+            position: fixed; top: -10%;
+            color: rgba(255, 0, 0, 0.6);
+            font-size: 20px; pointer-events: none;
+            z-index: 0; animation: falling linear infinite;
+        }
+        @keyframes falling { to { transform: translateY(110vh) rotate(360deg); } }
+
+        /* --- الصفحة الأولى (تم رفع المحتوى) --- */
+        #main-page {
+            width: 100%; padding: 15px; 
+            padding-top: 60px; /* التعديل: رفع الكلمة للأعلى */
+            z-index: 10; display: flex; flex-direction: column; align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* الصفحة الثانية */
+        #gift-page { 
+            display: none; background: #000; min-height: 100vh; 
+            width: 100%; padding: 15px; padding-top: 20px; 
+            z-index: 10; display: flex; flex-direction: column; align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .header h1 {
+            color: var(--gold-color); font-family: 'Reem Kufi', sans-serif;
+            font-size: clamp(1.5rem, 8vw, 2.2rem); text-align: center; margin-top: 0;
+            margin-bottom: 5px; /* تقليل المسافة تحت العنوان */
+        }
+
+        .timer-container {
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+            border: 2px solid var(--royal-red); border-radius: 20px;
+            padding: 15px; width: 95%; max-width: 360px;
+            text-align: center; margin-bottom: 20px;
+        }
+
+        .timer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .timer-box {
+            background: var(--timer-bg-red); padding: 12px 5px; border-radius: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+        .timer-box span { display: block; color: var(--gold-color); font-size: 1.5rem; font-weight: bold; }
+        .timer-box label { color: white; font-size: 0.9rem; display: block; }
+
+        .love-letter {
+            background: rgba(163, 0, 0, 0.1); padding: 20px; border-radius: 15px;
+            border-right: 4px solid var(--gold-color); width: 95%; max-width: 360px;
+            text-align: center; line-height: 1.6; margin-bottom: 25px;
+        }
+
+        .royal-btn {
+            padding: 12px 30px; border-radius: 50px;
+            background: linear-gradient(45deg, #a30000, #cc0000); 
+            color: white; cursor: pointer; border: 2px solid var(--gold-color);
+            font-family: 'Reem Kufi', sans-serif; font-size: 1.1rem;
+            transition: 0.2s; text-decoration: none; text-align: center;
+        }
+
+        .welcome-box {
+            border: 2px solid var(--gold-color); background: var(--timer-bg-red);
+            padding: 8px 20px; border-radius: 50px; color: white;
+            font-size: 1.1rem; margin-top: 0; margin-bottom: 15px;
+        }
+
+        .gift-box { font-size: 70px; cursor: pointer; animation: pulse 1.5s infinite; margin-bottom: 10px; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        #cards-container { display: none; width: 100%; max-width: 380px; flex-direction: column; gap: 12px; align-items: center; }
+        
+        .card {
+            background: var(--card-bg-dark) !important; border: 1px solid var(--gold-color) !important;
+            padding: 15px; border-radius: 15px; text-align: center; width: 100%;
+            animation: fadeInUp 0.5s ease;
+        }
+        .card h3 { color: var(--gold-color); margin: 0 0 8px 0; }
+        .card p { font-style: italic; text-shadow: 1px 1px 2px black; margin: 0; }
+
+        .promise-card {
+            background: var(--timer-bg-red) !important;
+            border: 1px solid var(--gold-color) !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+        }
+        .promise-card p { font-weight: bold !important; font-style: normal !important; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <a href="memories.html" id="top-back-arrow"><span>←</span></a>
+
+    <div id="main-page">
+        <div class="header">
+            <h1>مملكتنا الخاصة</h1>
+            <p style="text-align: center; margin-top: 0;">يا ست البنات.. يا منى 👑</p>
+        </div>
+        <div class="timer-container">
+            <div style="color: var(--gold-color); margin-bottom: 10px;">حكايتنا بدأت منذ 👇</div>
+            <div class="timer-grid">
+                <div class="timer-box"><span id="years">00</span><label>سنة</label></div>
+                <div class="timer-box"><span id="months">00</span><label>شهر</label></div>
+                <div class="timer-box"><span id="days">00</span><label>يوم</label></div>
+                <div class="timer-box"><span id="hours">00</span><label>ساعة</label></div>
+                <div class="timer-box"><span id="minutes">00</span><label>دقيقة</label></div>
+                <div class="timer-box"><span id="seconds">00</span><label>ثانية</label></div>
+            </div>
+        </div>
+        <div class="love-letter">أنتِ أجمل صدفة في حياتي، وبداية كل حاجة حلوة.. كل ثانية بتمر وإحنا مع بعض هي مكسب ليا.</div>
+        <div class="royal-btn" onclick="showGiftPage()">الصفحة التانية يروحي🌝</div>
+    </div>
+
+    <div id="gift-page" style="display:none;">
+        <div class="welcome-box">نورتي يا روحي</div>
+        <div class="gift-box" id="gift-icon" onclick="openGift()">🎁</div>
+        <div id="cards-container">
+            <div class="card">
+                <h3>أجمل تاريخ</h3>
+                <p>15/6/2012.. بداية حكايتنا اللي مش هتخلص أبداً.</p>
+            </div>
+            <div class="card">
+                <h3>يوم خطوبتنا</h3>
+                <p>12/6/2025.. اليوم اللي بقيتي فيه رسمي شريكة عمري.</p>
+            </div>
+            <div class="card">
+                <h3>🌙 أول عيد لينا سوا</h3>
+                <p>20/3/2026.. أول عيد يجي علينا وإحنا مخطوبين.</p>
+            </div>
+            <div class="card promise-card">
+                <h3>وعد ليكي</h3>
+                <p>هفضل جنبك ومعاكي في كل لحظة، يا أحلى منى في الدنيا.</p>
+            </div>
+            <div class="royal-btn" style="margin: 20px 0;" onclick="goBackToTimer()">← العودة لصفحة العداد</div>
+        </div>
+    </div>
+
+    <script>
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-fall');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 5 + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 8000);
+        }
+        setInterval(createHeart, 400);
+
+        function showGiftPage() {
+            window.history.pushState({page: "gift"}, "");
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('gift-page').style.display = 'flex';
+            document.getElementById('top-back-arrow').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+
+        function goBackToTimer() { window.history.back(); }
+
+        window.onpopstate = function() {
+            document.getElementById('gift-page').style.display = 'none';
+            document.getElementById('main-page').style.display = 'flex';
+            document.getElementById('top-back-arrow').style.display = 'flex';
+            window.scrollTo(0, 0);
+        };
+
+        function openGift() {
+            document.getElementById('gift-icon').style.display = 'none';
+            document.getElementById('cards-container').style.display = 'flex';
+        }
+
+        function updateTimer() {
+            const start = new Date("2012-06-15T00:00:00");
+            const now = new Date();
+            let years = now.getFullYear() - start.getFullYear();
+            let months = now.getMonth() - start.getMonth();
+            let days = now.getDate() - start.getDate();
+            if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+            if (months < 0) { years--; months += 12; }
+            const diff = now - start;
+            document.getElementById('years').innerText = String(years).padStart(2, '0');
+            document.getElementById('months').innerText = String(months).padStart(2, '0');
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(Math.floor((diff / 36e5) % 24)).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(Math.floor((diff / 6e4) % 60)).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(Math.floor((diff / 1e3) % 60)).padStart(2, '0');
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تحدي الـ 50 سؤال - لست البنات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Reem+Kufi:wght@600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        /* اللون الأحمر العادي الأساسي */
+        :root { --bg-color: #05050a; --gold: #ffd700; --correct-green: #2ecc71; --pure-red: #ff0000; }
+        
+        /* التعديل 1 و 2: إلغاء الـ Grayscale والوميض الرمادي */
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            touch-action: manipulation; 
+            outline: none;
+            user-select: none;
+            filter: none !important; 
+            -webkit-filter: grayscale(0%) !important;
+        }
+
+        body { margin: 0; padding: 10px; background: var(--bg-color); color: white; font-family: 'Amiri', serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; position: relative; }
+        #sky-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        h1 { font-family: 'Reem Kufi'; color: var(--gold); text-align: center; font-size: 1.5rem; margin: 10px 0; z-index: 10; position: relative; }
+        .quiz-card { background: rgba(10, 10, 20, 0.9); border: 2px solid var(--gold); border-radius: 15px; padding: 25px 15px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); z-index: 10; position: relative; }
+        .question-box { font-size: 1.25rem; line-height: 1.5; margin-bottom: 25px; min-height: 65px; color: #fff; }
+        .options-container { display: flex; flex-direction: column; gap: 12px; }
+        
+        .quiz-btn { 
+            width: 100%; padding: 14px; background: rgba(26, 26, 26, 1); 
+            border: 1px solid var(--gold); color: white; border-radius: 12px; 
+            font-family: 'Amiri'; cursor: pointer; font-size: 1.05rem;
+            transition: background 0.1s, transform 0.1s;
+        }
+
+        /* التعديل 3: الانتقال اللحظي (استجابة فورية للضغط) */
+        .quiz-btn:active, .back-link:active {
+            transform: scale(0.94);
+            transition: transform 0.1s ease;
+        }
+
+        @keyframes pulse-quick {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.92); }
+            100% { transform: scale(1); }
+        }
+        .btn-pulse { animation: pulse-quick 0.15s ease-out; }
+
+        .btn-correct { background: var(--correct-green) !important; border-color: white !important; color: white !important; }
+        .btn-wrong { background: var(--pure-red) !important; border-color: white !important; color: white !important; }
+
+        .progress-bar { font-family: 'Reem Kufi'; font-size: 0.85rem; color: var(--gold); margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255, 215, 0, 0.2); }
+        #feedback { height: 45px; margin-top: 10px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .back-link { margin-top: 25px; color: #aaa; text-decoration: none; font-size: 0.85rem; z-index: 10; position: relative; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <canvas id="sky-canvas"></canvas>
+    <h1>تحدي الـ 50 سؤال 👑</h1>
+    <div class="quiz-card">
+        <div id="quiz-content">
+            <div class="question-box" id="question-text">هل أنتي مستعدة لاختبار الـ 50 سؤال؟<br>يا ست البنات..</div>
+            <div id="options-area" class="options-container">
+                <button class="quiz-btn" id="start-btn" onclick="handleStart(this)">ابدئي التحدي الآن 🚀</button>
+            </div>
+        </div>
+        <div id="feedback"></div>
+        <div class="progress-bar" id="progress-text">اختبري مدى معرفتك بضياء</div>
+    </div>
+    <a onclick="history.back()" class="back-link">← العودة للخلف</a>
+
+    <script>
+        const questions = [
+            { q: "إيه التاريخ اللي بدأ فيه حبنا؟", opts: ["15/6/2012", "12/6/2014", "1/1/2012"], correct: 0 },
+            { q: "ضياء بيناديكي بإيه دايمًا؟", opts: ["الأميرة", "ست البنات", "الملكة"], correct: 1 },
+            { q: "إيه أكتر حاجة ضياء بيحبها فيكي؟", opts: ["ضحكتك", "طيبة قلبك", "كل حاجة فيكي"], correct: 2 },
+            { q: "أول هدية ضياء جابها كانت إيه؟", opts: ["ورد", "سلسلة", "برفان"], correct: 1 },
+            { q: "يوم الخطوبة كان تاريخه كام؟", opts: ["12/6/2025", "15/6/2025", "10/6/2025"], correct: 0 },
+            { q: "أكتر لون ضياء بيحب يشوفه عليكي؟", opts: ["الأحمر", "الأسود", "كل الألوان طبعاً"], correct: 2 },
+            { q: "ضياء بيحب يشرب إيه الصبح؟", opts: ["قهوة", "شاي", "نسكافيه"], correct: 2 },
+            { q: "أكتر أكلة ضياء بيطلبها منك؟", opts: ["مكرونة بشاميل", "حمام", "بيتزا"], correct: 1 },
+            { q: "مين اللي بيعترف بالحب أكتر؟", opts: ["ضياء", "منى", "إحنا الاتنين"], correct: 2 },
+            { q: "إيه هو اللقب المفضل لضياء؟", opts: ["المعاون", "الملك", "العسكري"], correct: 0 },
+            { q: "ضياء بيحب يسهر معاكي فين؟", opts: ["في كافيه", "في البيت", "على البحر"], correct: 1 },
+            { q: "إيه الكلمة اللي بتفرح ضياء منك؟", opts: ["يا عيوني", "بحبك", "يا جوزي"], correct: 2 },
+            { q: "أكتر حاجة بتعصب ضياء؟", opts: ["العناد", "التأخير", "الكذب"], correct: 0 },
+            { q: "ضياء بيشوفك بنته ولا حبيبته؟", opts: ["بنتي", "الاثنين معاً", "حبيبتي"], correct: 1 },
+            { q: "إيه أكتر مكان بنحب نروحله سوا؟", opts: ["البيت", "الحديقة", "السينما"], correct: 0 },
+            { q: "ضياء بيحب يهزر معاكي إزاي؟", opts: ["بالكلام", "بالضحك", "بالرومانسية"], correct: 2 },
+            { q: "أول كلمة ضياء قالها في أول مكالمة؟", opts: ["أهلاً", "ازيك", "وحشتيني"], correct: 1 },
+            { q: "إيه أكتر صفة ضياء بيفتخر بيها فيكي؟", opts: ["حنيتك", "ذكاءك", "صبرك"], correct: 0 },
+            { q: "ضياء بيحب شكل شعرك إزاي؟", opts: ["مفرود", "ملموم", "زي ما هو"], correct: 2 },
+            { q: "أكتر فصل ضياء بيحبه معاكي؟", opts: ["الصيف", "الشتا", "الربيع"], correct: 1 },
+            { q: "ضياء بيفكر فيكي قبل ما ينام؟", opts: ["طبعاً دايماً", "أحياناً", "لما يفتكر"], correct: 0 },
+            { q: "لما ضياء بيتعب بيحب يروح لمين؟", opts: ["أصحابه", "ينام", "منى"], correct: 2 },
+            { q: "أكتر ذكرى ضياء بيحب يفتكرها؟", opts: ["الخطوبة", "كل ذكرياتنا", "أول لقاء"], correct: 1 },
+            { q: "ضياء بيحب يسمع صوتك وإنتي..؟", opts: ["بتضحكي", "بتغني", "بتحكي له يومك"], correct: 0 },
+            { q: "لو ضياء جابلك ورد هيكون لونه إيه؟", opts: ["أبيض", "أحمر", "أصفر"], correct: 1 },
+            { q: "ضياء بيحب فيكي طريقتك في الـ..؟", opts: ["دلع", "لبس", "كلام"], correct: 0 },
+            { q: "إيه أكتر حاجة ضياء بيخاف عليكي منها؟", opts: ["زعلك", "الحسد", "كل حاجه"], correct: 2 },
+            { q: "إيه هو طموح ضياء الأكبر؟", opts: ["بيت سعيد", "الاثنين سوا", "نجاح مهني"], correct: 1 },
+            { q: "ضياء بيحب يشوف في عينيكي إيه؟", opts: ["الحب", "الفرحة", "اللمعة"], correct: 0 },
+            { q: "أكتر فيلم ضياء بيحبه؟", opts: ["أكشن", "رومانسي", "كوميدي"], correct: 0 },
+            { q: "ضياء بيحب ينام كام ساعة؟", opts: ["6 ساعات", "النوم الطبيعي", "8 ساعات"], correct: 1 },
+            { q: "إيه أكتر فاكهة ضياء بيحبها؟", opts: ["الموز", "فراولة", "تفاح"], correct: 0 },
+            { q: "ضياء بيحب ريحة إيه فيكي؟", opts: ["برفانك", "النضافة", "ريحتك الطبيعية"], correct: 2 },
+            { q: "لو ضياء حلم بحلم، هيكون عن مين؟", opts: ["شغله", "عنك أنتي", "عيلته"], correct: 1 },
+            { q: "ضياء بيحب يمسك إيدك وإحنا فين؟", opts: ["في كل مكان", "واحنا ماشيين", "في البيت"], correct: 0 },
+            { q: "إيه هي أكتر كلمة ضياء بيكررها؟", opts: ["يا روحي", "يا بنوتي", "ماشي"], correct: 1 },
+            { q: "ضياء بيحب الشوكولاتة ولا الحلويات؟", opts: ["شوكولاتة", "حلويات شرقية", "مش بيميل للسكر"], correct: 0 },
+            { q: "أكتر حاجة بتفرح ضياء في يومه؟", opts: ["رسالة منك", "خلص شغله", "نام بدري"], correct: 0 },
+            { q: "ضياء بيحب يلبس ساعة ولا خاتم؟", opts: ["خاتم", "ساعة", "الاتنين"], correct: 2 },
+            { q: "لو ضياء كتب قصة، هتكون عن إيه؟", opts: ["حياته", "البرمجة", "قصة حبنا"], correct: 2 },
+            { q: "ضياء بيحب يقضي يوم إجازته إزاي؟", opts: ["معاكي أنتي وبس", "خروج وسفر", "نوم وهدوء"], correct: 0 },
+            { q: "لو ضياء اختارلك لقب جديد يكون؟", opts: ["وتين ضياء", "أميرة يونيو", "الاتنين صح وإنتي كل الأسامي وكلام الدنيا الحلو كلو مش كفاية عليكي"], correct: 1 },
+            { q: "إيه أكتر حاجة ضياء بيحب يسمعها منك الصبح؟", opts: ["صباح الخير", "دعوة حلوة", "وحشتني"], correct: 2 },
+            { q: "ضياء بيشوفك أجمل وإنتي لابسة؟", opts: ["لبس خروج", "أي حاجة منك حلوة", "لبس البيت"], correct: 1 },
+            { q: "إيه هو أكتر موقف ضياء مش بينساه ليكي؟", opts: ["كل تفاصيلك", "أول ضحكة", "وقفتك جنبه"], correct: 0 },
+            { q: "ضياء بيثق في مين أكتر حد في الدنيا؟", opts: ["نفسه", "أهله", "منى"], correct: 2 },
+            { q: "لو ضياء سافر، أكتر حاجة هيفتقدها؟", opts: ["وجودك جنبه", "الأكل", "الخروج"], correct: 0 },
+            { q: "ضياء بيحب فيكي ذكاءك ولا طيبتك؟", opts: ["ذكاءك", "طيبتك", "الاتنين بيكملوا بعض"], correct: 2 },
+            { q: "إيه هي كلمة السر اللي بينك وبين ضياء؟", opts: ["يا عيوني", "يا بابا", "أنت ملكي"], correct: 1 },
+            { q: "ضياء بيوعدك بإيه في الـ 50 سنة الجاية؟", opts: ["نفضل سوا", "كل الحب والسعادة", "تفضلو طول العمر سوا وتكوني ملكه"], correct: 2 }
+        ];
+
+        let currentQ = 0;
+
+        function handleStart(btn) {
+            btn.classList.add('btn-pulse');
+            setTimeout(() => { btn.classList.remove('btn-pulse'); startQuiz(); }, 150);
+        }
+
+        function startQuiz() { currentQ = 0; document.getElementById('feedback').innerText = ""; renderQuestion(); }
+
+        function renderQuestion() {
+            const q = questions[currentQ];
+            const qText = document.getElementById('question-text');
+            const optionsArea = document.getElementById('options-area');
+            const progress = document.getElementById('progress-text');
+            qText.innerText = q.q;
+            progress.innerText = `السؤال ${currentQ + 1} من 50`;
+            optionsArea.innerHTML = '';
+            q.opts.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-btn';
+                btn.innerText = opt;
+                btn.onclick = function() { checkAnswer(index, btn); };
+                optionsArea.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const q = questions[currentQ];
+            const feedback = document.getElementById('feedback');
+            btnElement.classList.add('btn-pulse');
+            setTimeout(() => btnElement.classList.remove('btn-pulse'), 150);
+
+            if(selectedIndex === q.correct) {
+                btnElement.classList.add('btn-correct');
+                feedback.style.color = "#4CAF50";
+                feedback.innerText = "صح يا ست البنات ✅"; 
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
+                currentQ++;
+                setTimeout(() => {
+                    if(currentQ < questions.length) { feedback.innerText = ""; renderQuestion(); } 
+                    else { finishQuiz(); }
+                }, 400);
+            } else {
+                btnElement.classList.add('btn-wrong');
+                feedback.style.color = "var(--pure-red)"; 
+                feedback.innerText = "ركزي شويه ياروحي 😂";
+                setTimeout(() => { btnElement.classList.remove('btn-wrong'); }, 350); 
+            }
+        }
+
+        function finishQuiz() {
+            const content = document.getElementById('quiz-content');
+            content.innerHTML = `
+                <div style="font-size: 50px; margin-bottom:15px;">🏆</div>
+                <h2 style="color: var(--gold); font-family: 'Reem Kufi';">ملكة الـ 50 سؤال!</h2>
+                <p style="font-size:1.1rem;">أثبتي إنك عارفة كل تفاصيل ضياء.<br>برافو يا أغلى منى في الدنيا.</p>
+                <p style="color: var(--gold); font-weight: bold; font-size:1.3rem;">بحبك يا ست البنات ❤️</p>
+            `;
+            document.getElementById('progress-text').innerText = "تم التحدي بنجاح ✅";
+            document.getElementById('feedback').innerText = "";
+            confetti({ particleCount: 200, spread: 100 });
+        }
+
+        const skyCanvas = document.getElementById('sky-canvas');
+        const skyCtx = skyCanvas.getContext('2d');
+        function setCanvasSize() { skyCanvas.width = window.innerWidth; skyCanvas.height = window.innerHeight; }
+        setCanvasSize();
+        const stars = [];
+        for (let i = 0; i < 150; i++) { stars.push({ x: Math.random()*skyCanvas.width, y: Math.random()*skyCanvas.height, radius: Math.random()*1.3, opacity: Math.random(), speed: 0.005 + Math.random()*0.02 }); }
+        function drawStars() { skyCtx.clearRect(0, 0, skyCanvas.width, skyCanvas.height); stars.forEach(star => { skyCtx.beginPath(); skyCtx.arc(star.x, star.y, star.radius, 0, Math.PI*2); skyCtx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`; skyCtx.fill(); star.opacity += star.speed; if (star.opacity > 1 || star.opacity < 0) star.speed = -star.speed; }); requestAnimationFrame(drawStars); }
+        drawStars();
+
+        /* التعديل المطلوب: الرجوع خطوة واحدة للخلف فقط */
+        window.history.pushState({page: 'quiz'}, "", "");
+        window.onpopstate = function(event) { 
+            history.back(); 
+        };
+    </script>
+</body>
+</html>

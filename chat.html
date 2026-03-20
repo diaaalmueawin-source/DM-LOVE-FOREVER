@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>دردشة مع الملك ضياء 👑</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Reem+Kufi:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #05050a;
+            --gold: #ffd700;
+            --user-msg: #1a1a1a;
+            --diaa-msg: #8b0000;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            height: 100%; width: 100%;
+            background: var(--bg-color);
+            color: white; font-family: 'Amiri', serif;
+            overflow: hidden; position: fixed;
+        }
+
+        /* --- شاشة القفل --- */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.8s ease-in-out;
+        }
+        .lock-box { text-align: center; width: 85%; max-width: 400px; }
+        .lock-box h1 { color: var(--gold); font-family: 'Reem Kufi'; font-size: 1.5rem; margin-bottom: 20px; }
+        .lock-input {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--gold);
+            color: white; padding: 12px; border-radius: 8px;
+            width: 100%; text-align: center; font-family: 'Amiri';
+            font-size: 1.1rem; outline: none; margin-bottom: 15px; box-sizing: border-box;
+        }
+        .remember-container {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; margin-bottom: 20px; color: #ccc; font-size: 0.9rem; cursor: pointer;
+        }
+        .remember-container input { display: none; }
+        .checkmark {
+            width: 18px; height: 18px; border: 1px solid var(--gold);
+            border-radius: 4px; display: flex; align-items: center; justify-content: center;
+        }
+        .remember-container input:checked + .checkmark { background: var(--gold); }
+        .remember-container input:checked + .checkmark::after { content: '✓'; color: black; font-weight: bold; }
+        .lock-btn {
+            background: var(--gold); color: black; border: none;
+            padding: 12px 40px; border-radius: 8px; font-weight: bold;
+            cursor: pointer; font-family: 'Reem Kufi';
+        }
+
+        #sky-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+
+        .main-wrapper {
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column;
+            height: 100vh; filter: blur(15px); transition: 0.8s filter ease;
+        }
+
+        .chat-header {
+            background: rgba(10, 10, 20, 0.98); border-bottom: 1px solid var(--gold);
+            padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+        }
+        .header-left { display: flex; align-items: center; gap: 8px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--gold); background: #222; display: flex; align-items: center; justify-content: center; }
+        .status-info h2 { margin: 0; font-family: 'Reem Kufi'; font-size: 0.9rem; color: var(--gold); }
+        .status-info span { font-size: 0.65rem; color: #4CAF50; }
+        .header-right { display: flex; gap: 10px; }
+        .clear-btn { background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; padding: 3px 8px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; }
+        .logout-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 3px 8px; border-radius: 5px; cursor: pointer; }
+
+        .chat-container {
+            flex: 1; overflow-y: auto; padding: 12px;
+            display: flex; flex-direction: column; gap: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .chat-container::-webkit-scrollbar { display: none; }
+        .message { max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 0.95rem; animation: fadeIn 0.3s ease; line-height: 1.4; }
+        .msg-diaa { align-self: flex-start; background: var(--diaa-msg); border-bottom-right-radius: 2px; }
+        .msg-user { align-self: flex-end; background: var(--user-msg); border: 1px solid #333; border-bottom-left-radius: 2px; }
+
+        .options-footer {
+            background: rgba(10, 10, 20, 0.98); border-top: 1px solid var(--gold);
+            padding: 10px; flex-shrink: 0; 
+            max-height: 250px; overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-bottom: 10px; }
+        .opt-btn {
+            background: #111; border: 1px solid rgba(255, 215, 0, 0.3);
+            color: white; padding: 12px 5px; border-radius: 8px;
+            font-family: 'Amiri'; font-size: 0.85rem; text-align: center;
+        }
+        .typing { font-style: italic; font-size: 0.75rem; color: #aaa; height: 18px; margin-bottom: 5px; display: none; }
+
+        .footer-banner { grid-column: span 2; background: rgba(255, 215, 0, 0.05); border: 1px dashed var(--gold); color: var(--gold); text-align: center; padding: 10px; font-size: 0.8rem; border-radius: 8px; margin-top: 5px; }
+        .footer-line { grid-column: span 2; text-align: center; color: var(--gold); padding: 5px; font-size: 1.2rem; opacity: 0.5; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="lock-screen">
+        <div class="lock-box">
+            <h1>أثبتي إنكِ الملكة 👑</h1>
+            <input type="text" id="passInput" class="lock-input" placeholder="اكتبي كلمة السر الملكية...">
+            <label class="remember-container">
+                <input type="checkbox" id="rememberMe">
+                <div class="checkmark"></div>
+                <span>تذكريني لمدة 24 ساعة</span>
+            </label>
+            <button class="lock-btn" onclick="checkPass()">دخول للمملكة</button>
+            <div id="errorMsg" style="color: #ff4d4d; font-size: 0.85rem; margin-top: 10px; display: none;">الكلمة غلط يا حبيبتي ❤️</div>
+        </div>
+    </div>
+
+    <canvas id="sky-canvas"></canvas>
+
+    <div class="main-wrapper" id="content">
+        <div class="chat-header">
+            <div class="header-left">
+                <div class="avatar">👑</div>
+                <div class="status-info">
+                    <h2>ضياء جوزي 🥹🌝</h2>
+                    <span>متصل الآن..</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="clear-btn" onclick="clearChat()">مسح</button>
+                <button class="logout-btn" onclick="confirmLogout()">➔</button>
+            </div>
+        </div>
+
+        <div class="chat-container" id="chat-box">
+            <div class="message msg-diaa">أهلاً يا ست البنات.. وحشتيني يا قلب ضياء ❤️</div>
+        </div>
+
+        <div class="options-footer" id="scroll-area">
+            <div id="typing-indicator" class="typing">ضياء يكتب الآن...</div>
+            <div class="options-grid" id="options-list"></div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const lastLogin = localStorage.getItem('diaa_login_time');
+            if (lastLogin && (new Date().getTime() - lastLogin < 86400000)) unlockApp();
+        };
+
+        function unlockApp() {
+            document.getElementById('lock-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('content').style.filter = 'blur(0)';
+            }, 800);
+        }
+
+        function checkPass() {
+            let pass = document.getElementById('passInput').value.trim().replace(/أ/g, "ا");
+            if (pass === "احبك يا ضياء") {
+                if (document.getElementById('rememberMe').checked) localStorage.setItem('diaa_login_time', new Date().getTime());
+                unlockApp();
+            } else { document.getElementById('errorMsg').style.display = 'block'; }
+        }
+
+        function confirmLogout() { if (confirm("تسجيل خروج؟")) { localStorage.removeItem('diaa_login_time'); location.reload(); } }
+
+        const canvas = document.getElementById('sky-canvas');
+        const ctx = canvas.getContext('2d');
+        function initStars() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        initStars();
+        function drawStars() {
+            ctx.clearRect(0,0,canvas.width, canvas.height); ctx.fillStyle = "white";
+            for(let i=0; i<40; i++) { ctx.beginPath(); ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, 0.6, 0, Math.PI*2); ctx.fill(); }
+            setTimeout(() => requestAnimationFrame(drawStars), 300);
+        }
+        drawStars();
+
+        const chatData = [
+            {
+                q: "بتحبني قد إيه؟",
+                answers: [
+                    "بحبك لدرجة إني مش شايف غيرك في الدنيا دي يا ست البنات.", 
+                    "حبي ليكي يا بنوتي ملوش حدود، زي النجوم اللي فوقنا دي.", 
+                    "أنتي عارفة إنك أغلى حاجة في حياتي يا مراتي؟ بحبك فوق الوصف.", 
+                    "لو قعدت أوصف حبي ليكي يا قلب بابا العمر كله مش هيكفي.", 
+                    "بحبك حب يخلي الدنيا في عيني جنة طول ما أنتي جنبي يا ست البنات.", 
+                    "أنتي حبيبتي وبنتي وكل مالي، بحبك جداً.", 
+                    "سؤالك ده رده في قلبي اللي بيدق باسمك في كل ثانية يا بنوتي.", 
+                    "بحبك لدرجة إني مستعد أبيع الدنيا وأشتري ضحكتك يا مراتي العزيزة.", 
+                    "أنتي الرزق اللي ربنا كرمني بيه، وبحبك أكتر من نفسي يا قلب بابا.", 
+                    "حبك في قلبي زي الروح في الجسم، مقدرش أعيش من غيره يا ست البنات.", 
+                    "بحبك لآخر نفس، ولحد ما نتقابل في الجنة سوا يا بنوتي.", 
+                    "أنتي الأميرة بتاعتي، وحبي ليكي بيكبر كل يوم يا مراتي.", 
+                    "يا قلب بابا، أنتي الحقيقة الوحيدة الحلوة اللي في حياتي، بحبك.", 
+                    "بحبك بعدد الأيام اللي عشناها سوا، وبالأيام اللي هنعيشها يا ست البنات.", 
+                    "لو قلبي اتكلم يا بنوتي، مش هيقول غير كلمة 'بحبك' وبس.", 
+                    "أنتي عارفة إني مقدرش أستغنى عنك لحظة يا مراتي؟ بحبك أوي.", 
+                    "حبك هو اللي مخليني واقف على رجلي ومكمل يا قلب بابا.", 
+                    "يا ست البنات، حبي ليكي ملوش نهاية ولا حدود.", 
+                    "بحبك حب صافي ومن غير شروط، أنتي ملكي يا بنوتي.", 
+                    "أنتي جوه قلبي محبوسة ومحدش غيرك ليه مكان يا مراتي."
+                ]
+            },
+            {
+                q: "زعلان مني؟",
+                answers: [
+                    "أزعل من مين؟ أنتي روحي حد يزعل من روحه يا بنوتي؟", 
+                    "والله ما أقدر أزعل منك أبداً، أنتي دايماً غالية يا مراتي.", 
+                    "لو زعلت يا قلب بابا، بصالح نفسي بصورتك وبضحكتك.", 
+                    "أنا اللي أعتذر لك لو حسيتي بلحظة إني زعلان يا ست البنات.", 
+                    "زعلك عندي بالدنيا، فمستحيل أزعل منك يا بنوتي.", 
+                    "أنتي رضايا، حد يزعل من الرضا يا مراتي؟", 
+                    "مفيش زعل بينا، إحنا واحد يا قلب بابا وأنتي عارفة غلاوتك.", 
+                    "يا ست البنات، قلبي مبيعرفش يشيل منك أي حاجة وحشة أبداً.", 
+                    "لو في يوم اختلفنا، حبي ليكي بيصفي كل حاجة في ثانية يا بنوتي.", 
+                    "أنتي حتة من قلبي يا مراتي، مستحيل أزعل من حتة مني.", 
+                    "يا قلب بابا، أنتي دايماً صح في عيني، مفيش زعل.", 
+                    "مقدرش أنام وإحنا بينا أي حاجة، أنتي أهم عندي من أي زعل يا ست البنات.", 
+                    "أنا فخور بيكي في كل حالاتك، فإزاي أزعل منك يا بنوتي؟", 
+                    "كلمة منك يا مراتي بتنسيني أي حاجة حصلت، أنتي السكن.", 
+                    "يا قلب بابا، الزعل ده للناس الغريبة، أنتي صاحبة البيت والقلب.", 
+                    "أنتي دايماً بتعرفي تراضيني بوجودك، مفيش مكان للزعل يا ست البنات.", 
+                    "يا بنوتي، أنا بتمسك بيكي أكتر وقت الزعل، فمستحيل أبعد.", 
+                    "أنتي النور اللي في حياتي، والظلام مبيجيش منك يا مراتي.", 
+                    "عمر الزعل ما هيدخل بينا يا قلب بابا، ده وعد مني ليكي.", 
+                    "أنتي عارفة إن قلبي ملكك، والملك مبيزعلش من ملكته يا ست البنات."
+                ]
+            },
+            {
+                q: "نفسك في إيه؟",
+                answers: [
+                    "نفسي نكون في بيتنا سوا، ومفارقكيش لحظة يا بنوتي.", 
+                    "حلمي إني أشوفك أسعد واحدة في العالم يا مراتي، وده وعد.", 
+                    "نفسي ربنا يقدرني وأعوضك عن كل تعب شوفتيه يا قلب بابا.", 
+                    "مبتمنىش غير إني أصحي كل يوم على وشك الجميل يا ست البنات.", 
+                    "نفسي نكبر سوا ونعجز سوا وإيدنا في إيد بعض يا بنوتي.", 
+                    "حلمي إن ولادنا ياخدوا طيبة قلبك وحنيتك يا مراتي.", 
+                    "نفسي أسافر بيكي كل حتة ونلف الدنيا سوا يا قلب بابا.", 
+                    "مبتمنىش من الدنيا غير إنك تفضلي في حضني يا ست البنات.", 
+                    "نفسي أكون ليكي السند والأمان اللي مبيخذلكيش أبداً يا بنوتي.", 
+                    "حلمي إني أحقق لك كل اللي نفسك فيه يا مراتي، حرفياً.", 
+                    "نفسي تفضلي فخورة بيا زي ما أنا فخور بيكي يا قلب بابا.", 
+                    "مفيش أمنية عندي تسبق أمنية إني أعيش جنبك يا ست البنات.", 
+                    "نفسي أشوف ضحكتك دي مابتفارقش وشك ثانية يا بنوتي.", 
+                    "حلمي إننا نفضل نحب بعض كدة للأبد يا مراتي.", 
+                    "نفسي أكون سبب في كل دمعة فرح تنزل من عينك يا قلب بابا.", 
+                    "مبتمنىش غير رضا ربنا ورضاكي عليا يا ست البنات.", 
+                    "نفسي الدنيا كلها تعرف إنك أجمل ست في حياتي يا بنوتي.", 
+                    "حلمي إننا نبني ذكريات في كل ركن في الدنيا سوا يا مراتي.", 
+                    "نفسي أكون دايماً الراجل اللي يطمنك ويحميكي يا قلب بابا.", 
+                    "مفيش أحلام تانية يا ست البنات، أنتي الحلم اللي اتحقق فعلاً."
+                ]
+            },
+            {
+                q: "قولي كلمة حلوة",
+                answers: [
+                    "يا بنوتي، أنتي أجمل رزق ساقهولي ربنا في طريقي.", 
+                    "أنتي عارفة إن ضحكتك هي اللي بتنور يومي يا مراتي؟", 
+                    "يا قلب بابا، أنتي مفيش في رقتك ولا حنيتك يا ست البنات.", 
+                    "أنتي مش بس حبيبتي، أنتي الروح اللي ساكنة جوايا يا بنوتي.", 
+                    "يا مراتي، كلمة 'أحبك' قليلة جداً على اللي بحسه معاكي.", 
+                    "أنتي ملكة قلبي، والتاج بتاعك هو أخلاقك وجمالك يا قلب بابا.", 
+                    "يا وش الخير عليا يا ست البنات، من يوم ما عرفتك والدنيا ضحكتلي.", 
+                    "يا بنوتي، أنتي الحظ اللي جالي بعد صبر طويل أوي.", 
+                    "أنتي أغلى من عيوني يا مراتي، والله العظيم.", 
+                    "يا سكن قلبي يا قلب بابا، في حضنك بس بحس إني مطمن.", 
+                    "أنتي النور اللي بيمحي أي ضلمة في حياتي يا ست البنات.", 
+                    "يا بنوتي، ملامحك دي هي اللي بتخليني أحب الحياة.", 
+                    "أنتي السند اللي بميل عليه وأنا مغمض عيني يا مراتي.", 
+                    "يا حبيبة ضياء، أنتي أجمل واحدة في عيني يا قلب بابا.", 
+                    "يا ست البنات، أنتي اللي بتخلي للتعب طعم لما برجع ألاقيكي.", 
+                    "أنتي وردة حياتي اللي مابتدبلش أبداً يا بنوتي.", 
+                    "يا جنة على الأرض يا مراتي، وجودك جنبي هو المكسب الوحيد.", 
+                    "أنتي اللي علمتيني يعني إيه حب حقيقي يا قلب بابا.", 
+                    "يا ست البنات، أنتي أغلى عليا من كل كنوز الدنيا دي.", 
+                    "يا نور عيني يا بنوتي، ربنا يخليكي ليا وما يحرمنيش منك أبداً."
+                ]
+            },
+            {
+                q: "أنا حلوة؟",
+                answers: [
+                    "أنتي القمر اللي نزل الأرض عشان ينورلي حياتي يا مراتي.", 
+                    "مفيش في جمالك اتنين يا قلب بابا، أنتي حالة نادرة أوي.", 
+                    "أنتي أجمل ست شافتها عيني يا ست البنات، وقلبي شهد بجمالك.", 
+                    "جمالك يا بنوتي مش بس في شكلك، جمالك في روحك وطيبتك.", 
+                    "أنتي ملكة جمال قلبي يا مراتي، ومفيش حد يوصل لمكانتك.", 
+                    "يا قلب بابا, ملامحك دي هي اللي بتخليني أسرح في ملكوت ربنا.", 
+                    "أنتي أحلى من أي وردة، وأرق من أي نسمة يا ست البنات.", 
+                    "لو الجمال له عنوان، أكيد هيكون باسمك يا بنوتي.", 
+                    "أنتي بجد أجمل حاجة حصلتلي يا مراتي، وشك ده هو راحتي.", 
+                    "يا قلب بابا، أنتي في عيني دايماً كاملة ومفيش فيكي غلطة.", 
+                    "جمالك يا ست البنات مبيخلصش، كل يوم بشوف فيكي حاجة أحلى.", 
+                    "أنتي الأميرة اللي في خيالي وطلعت حقيقة يا بنوتي.", 
+                    "يا مراتي، أنتي زينة الدنيا دي كلها في عيني يا قلب بابا.", 
+                    "أنتي بجد قمر يا ست البنات، والنجوم بتغير من نورك.", 
+                    "يا بنوتي، جمالك ده رزق ليا عشان أشوف الدنيا حلوة.", 
+                    "أنتي أحلى واحدة في الكون يا مراتي، وده رأيي الثابت.", 
+                    "يا قلب بابا، وشك ده هو اللي بيصبرني على أي تعب.", 
+                    "أنتي جميلة الروح قبل الشكل يا ست البنات، وده اللي مخليني دايب فيكي.", 
+                    "يا بنوتي، أنتي في عيني مفيش زي جمالك لا قبلك ولا بعدك.", 
+                    "أنتي الملاك اللي ربنا بعتهولي عشان يسعدني يا مراتي."
+                ]
+            },
+            {
+                q: "وحشتك؟",
+                answers: [
+                    "وحشتيني لدرجة إن قلبي وجعني من الشوق ليكي يا قلب بابا.", 
+                    "بتوحشيني وأنتي لسه سايبة إيدي يا ست البنات، تخيلي؟", 
+                    "أنتي دايماً على بالي يا بنوتي، مفيش ثانية بتعدي من غيرك.", 
+                    "وحشتيني قد كل النجوم اللي في السما دي يا مراتي وأكتر.", 
+                    "يا قلب بابا، غيابك عن عيني بيخلي الدنيا باهتة وملهاش طعم.", 
+                    "نفسي أشوفك دلوقتي حالا وأخدك في حضني يا ست البنات.", 
+                    "وحشتيني يا روحي، واليوم من غيرك ملوش أي لزمة يا بنوتي.", 
+                    "يا مراتي، أنتي الوحيدة اللي بتعرفي تملي الفراغ اللي جوايا.", 
+                    "وحشتني ضحكتك وصوتك وكل تفاصيلك يا قلب بابا.", 
+                    "أنتي وحشاني لدرجة إني بشوفك في كل الناس يا ست البنات.", 
+                    "يا بنوتي، الشوق ليكي ده حاجة مبقدرش أتحكم فيها.", 
+                    "وحشتيني يا أغلى إنسانة، ربنا يقرب المسافات يا مراتي.", 
+                    "يا روحي يا قلب بابا، أنتي دايماً نقصاني لما بتغيبي لحظة.", 
+                    "وحشاني يا ست البنات، يا رب نفضل سوا ومفارقش وشك.", 
+                    "كلمة وحشتيني قليلة أوي يا بنوتي على اللي بحسه في غيابك.", 
+                    "أنتي عارفة إنك بتوحشيني حتى وإحنا بنتكلم يا مراتي؟", 
+                    "يا قلب بابا، غيابك بيخليني أحس إني تايه في الدنيا.", 
+                    "وحشتيني يا ست البنات، ومستني اللحظة اللي تجمعنا.", 
+                    "أنتي النفس اللي بيوحشني يا بنوتي لما ببعد عنك.", 
+                    "يا مراتي، وحشاني أوي، ونفسي أقولهالك وأنا باصص في عينك."
+                ]
+            },
+            {
+                q: "مين أنا بالنسبة لك؟",
+                answers: [
+                    "أنتي دنيتي، وأنتي الأمان اللي كنت بدور عليه يا قلب بابا.", 
+                    "بالنسبة لي أنتي النفس اللي بيخرج ويدخل في صدري يا ست البنات.", 
+                    "أنتي بنتي الصغيرة اللي بخاف عليها من الهوا الطاير يا بنوتي.", 
+                    "أنتي حبيبتي وصاحبتي وأمي وأختي وكل مالي يا مراتي.", 
+                    "بالنسبة لضياء، أنتي النور اللي خلاه يشوف الحياة يا قلب بابا.", 
+                    "أنتي شريكة كفاحي وحلمي اللي بيتحقق كل يوم يا ست البنات.", 
+                    "أنتي الوطن اللي لجأت له وهربت فيه من كل الدنيا يا بنوتي.", 
+                    "أنتي أغلى هدية من ربنا يا مراتي، وأنتي اللي بتكمليني.", 
+                    "بالنسبة لي أنتي الملكة اللي بتحكم قلبي وعقلي يا قلب بابا.", 
+                    "أنتي كل حاجة حلوة حصلت يا ست البنات، وبتحصل، وهتحصل.", 
+                    "أنتي السبب اللي مخليني أعافر وأتعب عشانك يا بنوتي.", 
+                    "أنتي حتة من الجنة ربنا رزقني بيها في الدنيا يا مراتي.", 
+                    "بالنسبة لي أنتي المستقبل اللي أنا شايفه ومستنيه يا قلب بابا.", 
+                    "أنتي الشخص الوحيد اللي بكون على طبيعتي معاه يا ست البنات.", 
+                    "أنتي الأمان والطمأنينة بعد يوم تعب طويل يا بنوتي.", 
+                    "أنتي أجمل قصة حب عشتها وهعيشها لآخر يوم يا مراتي.", 
+                    "بالنسبة لي أنتي العوض عن كل حاجة وحشة شوفتها يا قلب بابا.", 
+                    "أنتي اللي بتعرفي تفهميني من غير ما أتكلم يا ست البنات.", 
+                    "أنتي الروح اللي سكنت جوايا ومبتخرجش أبداً يا بنوتي.", 
+                    "أنتي يا مراتي ببساطة.. كل حياتي وما فيها."
+                ]
+            },
+            {
+                q: "بتفكر في إيه دلوقتي؟",
+                answers: [
+                    "بفكر فيكي، وفي جمالك اللي مش بيخلص يا قلب بابا.", 
+                    "بفكر في اليوم اللي هنكون فيه في بيتنا سوا يا ست البنات.", 
+                    "بفكر إزاي أسعدك وأخليكي دايماً بتضحكي يا بنوتي.", 
+                    "بفكر في أول مرة شوفتك فيها يا مراتي، وقد إيه كنتي جميلة.", 
+                    "بفكر في بكرة اللي هيكون أحلى عشان أنتي معايا يا قلب بابا.", 
+                    "دلوقتي بفكر في عينيكي ولمعتها اللي بتسحرني يا ست البنات.", 
+                    "بفكر في كل كلمة حلوة قولتيها لي ومخلياني طاير يا بنوتي.", 
+                    "بفكر إني أد إيه محظوظ إنك بقيتي من نصيبي يا مراتي.", 
+                    "بفكر في شكل حياتنا وإحنا كبار ومسنين سوا يا قلب بابا.", 
+                    "بفكر في طيبة قلبك اللي مفيش زيها في الدنيا دي يا ست البنات.", 
+                    "بفكر في حضنك اللي هو أماني الوحيد في الدنيا يا بنوتي.", 
+                    "بفكر فيكي وفي أد إيه وحشتيني وأنتي معايا يا مراتي.", 
+                    "بفكر في رزق ربنا ليا اللي هو أنتي يا قلب بابا العزيزة.", 
+                    "بفكر في صوتك اللي بيريح أعصابي بمجرد ما أسمعه يا ست البنات.", 
+                    "بفكر في مواقفنا سوا وبضحك من قلبي يا بنوتي.", 
+                    "بفكر إني عمري ما هسيبك مهما حصل يا مراتي.", 
+                    "بفكر في اللحظة اللي هلبسك فيها الخاتم ونبقى سوا يا قلب بابا.", 
+                    "بفكر في جمالك الرباني اللي ملوش وصف يا ست البنات.", 
+                    "بفكر في اسمك اللي محفور جوه قلبي يا بنوتي.", 
+                    "بفكر في إنك أغلى حاجة عندي وبحبك أوي يا مراتي."
+                ]
+            },
+            {
+                q: "هتفضل جنبي دايماً؟",
+                answers: [
+                    "ده وعد عليا، هفضل سندك وضهرك لآخر يوم يا قلب بابا.", 
+                    "مقدرش أكون في حتة تانية غير جنبك يا ست البنات، أنتي ملكي.", 
+                    "طول ما فيا نفس، هفضل حمايتك وأمانك يا بنوتي.", 
+                    "أنا جنبك في المرة قبل الحلوة يا مراتي، ومش هسيبك أبداً.", 
+                    "وعد يا قلب بابا إني أكون ليكي الراجل اللي بيطمنك دايماً.", 
+                    "أنا ضهرك اللي مبيتحنيش، وسندك اللي مبيقعش يا ست البنات.", 
+                    "مستحيل أتخلى عنك يا بنوتي، أنتي أغلى ما أملك.", 
+                    "هفضل جنبك لحد ما شعرك يبيض ونعجز سوا يا مراتي.", 
+                    "أنا ليكي وبتاعك يا قلب بابا، وعمري ما هكون لغيرك.", 
+                    "طول ما قلبي بيدق، هو بيدق عشانك وجنبك يا ست البنات.", 
+                    "هفضل جنبك في تعبك قبل صحتك يا بنوتي، أنتي بنتي.", 
+                    "أنا السد المنيع اللي هيحفظك من أي سوء يا مراتي.", 
+                    "وعد مني يا قلب بابا، مفيش قوة في الدنيا تبعدني عنك.", 
+                    "أنا دايماً جنبك يا ست البنات، حتى لو المسافات بعيدة.", 
+                    "هفضل جنبك وأشيل عنك أي هم يلمس قلبك يا بنوتي.", 
+                    "أنا حبيبك اللي هيفضل مخلص ليكي للأبد يا مراتي.", 
+                    "هفضل جنبك وأدعمك لحد ما تحققي كل أحلامك يا قلب بابا.", 
+                    "أنا معاكي لآخر العمر يا ست البنات، ومفيش نهاية لحكايتنا.", 
+                    "وعد يا بنوتي إني أكون ليكي الأب والزوج والحبيب دايماً.", 
+                    "أنا جنبك يا مراتي، وده مكاني الطبيعي اللي برتاح فيه."
+                ]
+            },
+            {
+                q: "شايفني إزاي في مستقبلك؟",
+                answers: [
+                    "شايفك زوجتي وأم ولادي يا قلب بابا، والملكة اللي في بيتي.", 
+                    "مستقبلي ملوش ملامح من غيرك يا ست البنات، أنتي الأساس.", 
+                    "شايفك الست اللي هكبر معاها يا بنوتي، وأحس إن عمري ضاع في الصح.", 
+                    "شايفك في كل خطوة جاية يا مراتي، أنتي اللي بتنوري لي طريقي.", 
+                    "شايفك في بيتنا الصغير يا قلب بابا وإحنا بنشرب الشاي سوا.", 
+                    "مستقبلي هو أنتي يا ست البنات، مفيش طموح عندي يسبقك.", 
+                    "شايفك الست اللي هتشيل اسمي وتكون فخر ليا دايماً يا بنوتي.", 
+                    "شايفك في كل نجاح هوصله يا مراتي، لأنك أنتي السبب فيه.", 
+                    "شايفك السكن والراحة اللي هرجع لها بعد كل تعب يا قلب بابا.", 
+                    "مستقبلي معاكي هو الجنة اللي بحلم بيها يا ست البنات.", 
+                    "شايفك بتشاريكني كل لحظة حلوة ومرة جاية في حياتي يا بنوتي.", 
+                    "شايفك الأم الحنينة اللي هتربي ولادنا على الحب يا مراتي.", 
+                    "مستقبلي هو ضحكتك اللي هتفضل منورة بيتنا يا قلب بابا.", 
+                    "شايفك الرفيقة اللي مش همل منها أبداً مهما طال العمر يا ست البنات.", 
+                    "شايفك في كل دعوة بدعيها لربنا في مستقبلي يا بنوتي.", 
+                    "مستقبلي معاكي هو الأمان اللي كنت بتمناه طول عمري يا مراتي.", 
+                    "شايفك الست اللي هفضل أحبها وأدلعها لحد ما نعجز يا قلب بابا.", 
+                    "شايفك النور اللي هيقود عيلتنا الصغيرة لبر الأمان يا ست البنات.", 
+                    "مستقبلي من غيرك ملوش وجود يا بنوتي، أنتي كل اللي جاي.", 
+                    "شايفك معايا للأبد يا مراتي، في الدنيا وفي الجنة إن شاء الله."
+                ]
+            }
+        ];
+
+        function initOptions() {
+            const list = document.getElementById('options-list');
+            list.innerHTML = '';
+            chatData.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.innerText = item.q;
+                btn.onclick = () => {
+                    const u = document.createElement('div');
+                    u.className = 'message msg-user';
+                    u.innerText = item.q;
+                    document.getElementById('chat-box').appendChild(u);
+                    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+
+                    document.getElementById('typing-indicator').style.display = 'block';
+                    document.getElementById('scroll-area').style.pointerEvents = 'none';
+
+                    setTimeout(() => {
+                        document.getElementById('typing-indicator').style.display = 'none';
+                        const d = document.createElement('div');
+                        d.className = 'message msg-diaa';
+                        
+                        // اختيار رد عشوائي من الـ 20 رد المتاحين لكل سؤال
+                        const randomIdx = Math.floor(Math.random() * item.answers.length);
+                        d.innerText = item.answers[randomIdx];
+                        
+                        document.getElementById('chat-box').appendChild(d);
+                        document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+                        document.getElementById('scroll-area').style.pointerEvents = 'auto';
+                    }, 1200);
+                };
+                list.appendChild(btn);
+            });
+
+            const banner = document.createElement('div');
+            banner.className = 'footer-banner';
+            banner.innerText = 'انتهت الأسئلة';
+            list.appendChild(banner);
+
+            const line = document.createElement('div');
+            line.className = 'footer-line';
+            line.innerText = 'ـــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ';
+            list.appendChild(line);
+        }
+
+        initOptions();
+        function clearChat() { document.getElementById('chat-box').innerHTML = '<div class="message msg-diaa">نورتي مملكتك تاني يا ست البنات ❤️</div>'; }
+        document.getElementById('scroll-area').addEventListener('touchmove', function(e) { e.stopPropagation(); }, {passive: true});
+    </script>
+</body>
+</html>
